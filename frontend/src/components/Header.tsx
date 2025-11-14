@@ -1,18 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useWeb3 } from '@/contexts/Web3Context'
+import { BLOCKDAG_NETWORK } from '@/config/network'
+import { formatEther } from 'ethers'
 
 export default function Header() {
-  const [walletConnected, setWalletConnected] = useState(false)
-  const [walletAddress, setWalletAddress] = useState('')
+  const { wallet, connectWallet, disconnectWallet, switchToBlockDAG } = useWeb3()
+  const isWrongNetwork = wallet.isConnected && wallet.chainId !== BLOCKDAG_NETWORK.chainId
 
-  const handleConnectWallet = () => {
-    // Mock wallet connection
-    const mockAddress = '0x' + Array.from({ length: 40 }, () => 
-      Math.floor(Math.random() * 16).toString(16)
-    ).join('')
-    setWalletAddress(mockAddress)
-    setWalletConnected(true)
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  const formatBalance = (balance: string | null) => {
+    if (!balance) return '0.00'
+    const num = parseFloat(balance)
+    if (num < 0.01) return num.toFixed(6)
+    return num.toFixed(4)
   }
 
   return (
@@ -37,16 +41,29 @@ export default function Header() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            {walletConnected ? (
+            {wallet.isConnected ? (
               <div className="flex items-center space-x-3">
+                {isWrongNetwork && (
+                  <button
+                    onClick={switchToBlockDAG}
+                    className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Switch to BlockDAG
+                  </button>
+                )}
+                {wallet.balance && (
+                  <div className="px-4 py-2 bg-primary-light rounded-lg text-sm">
+                    <span className="text-gray-400">Balance: </span>
+                    <span className="text-white font-medium">
+                      {formatBalance(wallet.balance)} BDAG
+                    </span>
+                  </div>
+                )}
                 <div className="px-4 py-2 bg-primary-light rounded-lg text-sm text-white">
-                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                  {wallet.address && formatAddress(wallet.address)}
                 </div>
                 <button
-                  onClick={() => {
-                    setWalletConnected(false)
-                    setWalletAddress('')
-                  }}
+                  onClick={disconnectWallet}
                   className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
                 >
                   Disconnect
@@ -54,7 +71,7 @@ export default function Header() {
               </div>
             ) : (
               <button
-                onClick={handleConnectWallet}
+                onClick={connectWallet}
                 className="px-6 py-2 bg-swap-DEFAULT hover:bg-swap-hover text-white rounded-lg font-medium transition-colors"
               >
                 Connect Wallet
