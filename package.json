@@ -1,0 +1,25 @@
+{
+  "name": "blockdag-dex",
+  "version": "1.0.0",
+  "description": "BlockDAG Decentralized Exchange - A DEX platform for BlockDAG network",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "install:all": "cd frontend && npm install"
+  },
+  "keywords": [
+    "blockdag",
+    "dex",
+    "defi",
+    "blockchain",
+    "swap"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
